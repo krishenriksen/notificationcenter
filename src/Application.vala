@@ -300,9 +300,12 @@ static int main (string[] args) {
     File twisteros = File.new_for_path (GLib.Environment.get_variable ("HOME") + "/.twisteros-dark.twid");
     File iraspbiansur = File.new_for_path (GLib.Environment.get_variable ("HOME") + "/.iraspbiansur-dark.twid");
 
+    var settings = new GLib.Settings ("org.gnome.desktop.interface");
+    var theme_name = settings.get_string ("gtk-theme");
+
     string css_file = Config.PACKAGE_SHAREDIR +
         "/" + Config.PROJECT_NAME +
-        "/" + (iraspbian.query_exists() || nighthawk.query_exists() || twisteros.query_exists() || iraspbiansur.query_exists() ? "notificationcenter_dark.css" : "notificationcenter.css");
+        "/" + (iraspbian.query_exists() || nighthawk.query_exists() || twisteros.query_exists() || iraspbiansur.query_exists() || theme_name.has_suffix ("-dark") ? "notificationcenter_dark.css" : "notificationcenter.css");
     var css_provider = new Gtk.CssProvider ();
 
     try {
