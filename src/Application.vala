@@ -73,10 +73,11 @@ public class NotificationCenterWindow : Window {
 
 	            		// parse date/time
 	            		string? parse_date = date.replace("[", "");
-	            		string[] time = parse_date.split ("-");
+	            		string[] time = parse_date.split (":");
 
-						var date_label = new Gtk.Label (time[0] + "-" + time[1]);
+						var date_label = new Gtk.Label (time[0].replace("T", ", ") + ":" + time[1]);
 						date_label.get_style_context().add_class ("notification_date");
+						date_label.set_halign(Align.END);
 
 						var app_name_label = new Gtk.Label (app_name);
 						app_name_label.get_style_context().add_class ("notification_app_name");
@@ -95,11 +96,13 @@ public class NotificationCenterWindow : Window {
 			            notification_body.selectable = true;
 			            notification_body.can_focus = false;
 				        notification_body.set_line_wrap(true);
+				        notification_body.set_justify(Justification.FILL);
+				        notification_body.wrap_mode = Pango.WrapMode.WORD_CHAR;
 				        notification_body.get_style_context().add_class ("notification_body");
 
 						packingBox_horizontal.add(image);
 	            		packingBox_horizontal.add(app_name_label);
-	            		packingBox_horizontal.add(date_label);
+	            		packingBox_horizontal.add_with_properties(date_label, "expand", true, "padding", 10);
 
 	            		box_summary.add(summary_label);
 	            		box_body.add(notification_body);
