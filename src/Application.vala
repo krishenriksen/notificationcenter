@@ -42,7 +42,7 @@ public class NotificationCenterWindow : Window {
 		}
 
 	    try {
-	    	string? res = "";
+	        Array<string> res = new Array<string> ();
 
 	        var file = File.new_for_path (user_home + "/.cache/xfce4/notifyd/log");
 
@@ -50,23 +50,36 @@ public class NotificationCenterWindow : Window {
 	            var dis = new DataInputStream (file.read ());
 	            string line;
 
-	            while ((line = dis.read_line (null)) != null) {
-	            	res += line + ",";
+	            while (true) {
+	            	line = dis.read_line (null);
+	            	if (line != null && line != "") {
+	            	    res.append_val (line);
+	            	} else if (res.length != 0) {
+	            		string? date = res.index (0);
+	            		string? app_name = res.index (1).replace ("app_name=", "");
+	            		string? summary = res.index (2).replace ("summary=", "");
+	            		string? body = res.index (3).replace ("body=", "");
+	            		string? app_icon = res.index (4).replace ("app_icon=", "");
+	            		res.set_size (0);
 
-	            	if (line == "") {
-	            		string[] lines = res.split (",");
-	            		res = "";
-
-	            		string? date = lines[0];
-	            		string? app_name = lines[1].replace ("app_name=", "");
-	            		string? summary = lines[2].replace ("summary=", "");
-	            		string? body = lines[3].replace ("body=", "");
-	            		string? app_icon = lines[4].replace ("app_icon=", "");
+	            		string[] app_name_split = app_name.split (".");
+	            		if (app_name_split.length > 2) {
+	            		    app_name = app_name.substring (app_name_split[0].length + app_name_split[1].length + 2);
+	            		    app_name = app_name.replace(".", " ");
+	            		    app_name = app_name.up (1) + app_name.substring (1);
+	            		}
+	            		body = body.replace("\\n", "\n");
 
 						var image = new Image();
 						image.get_style_context().add_class ("notification_image");
 
-						image.set_from_icon_name(app_icon, IconSize.SMALL_TOOLBAR);
+                        if (File.new_for_path (app_icon).query_exists ()) {
+                            image.set_from_pixbuf (new Gdk.Pixbuf.from_file_at_size (app_icon, 16, 16));
+                        } else if (File.new_for_path (user_home + "/.cache/xfce4/notifyd/icons/" + app_icon + ".png").query_exists ()) {
+                            image.set_from_pixbuf (new Gdk.Pixbuf.from_file_at_size (user_home + "/.cache/xfce4/notifyd/icons/" + app_icon + ".png", 16, 16));
+                        } else {
+						    image.set_from_icon_name(app_icon, IconSize.SMALL_TOOLBAR);
+						}
 
 	            		var packingBox_horizontal = new Box (Orientation.HORIZONTAL, 0);
 	            		packingBox_horizontal.get_style_context().add_class ("notification_box_horizontal");
@@ -107,6 +120,12 @@ public class NotificationCenterWindow : Window {
 	    				cbox.add(packingBox_horizontal);
 	    				cbox.add(box_summary);
 	    				cbox.add(box_body);
+	    				cbox.reorder_child(box_body, 0);
+	    				cbox.reorder_child(box_summary, 0);
+	    				cbox.reorder_child(packingBox_horizontal, 0);
+	            	}
+	            	if (line == null) {
+	            	    break;
 	            	}
 	            }
 	        }
