@@ -157,10 +157,10 @@ public class NotificationCenterWindow : Window {
         this.resizable = false;
 
         Gdk.Screen default_screen = Gdk.Screen.get_default ();
-        monitor_dimensions = default_screen.get_display ().get_primary_monitor ().get_geometry ();
+        monitor_dimensions = default_screen.get_display ().get_primary_monitor ().get_workarea ();
 
         // set size, and slide out from right to left
-        this.set_default_size (width,  monitor_dimensions.height - 30);
+        this.set_default_size (width, monitor_dimensions.height);
         this.move(monitor_dimensions.width + width, 0);
        
         timerID = Timeout.add (5, on_timer_create_event);        
@@ -210,7 +210,7 @@ public class NotificationCenterWindow : Window {
 	    });
 	    bottombar.add(edit_button);
 
-	    var settings_icon = new Gtk.Image.from_icon_name ("settings-configure", IconSize.BUTTON);
+	    var settings_icon = new Gtk.Image.from_icon_name ("system_section", IconSize.BUTTON);
 	    var settings_button = new Gtk.ToolButton(settings_icon, "");
 	    settings_button.get_style_context ().add_class ("settings_button");
 	    settings_button.clicked.connect (() => {
